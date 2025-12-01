@@ -1,0 +1,27 @@
+FROM ubuntu:latest
+
+RUN apt update && apt install -y nginx curl iproute2
+
+COPY jogo.html /var/www/html/
+
+RUN echo "server { listen 80; root /var/www/html; index jogo.html; }" > /etc/nginx/sites-available/default
+
+RUN printf '#!/bin/bash\n\
+echo "========================================="\n\
+echo "       Servidor Nginx iniciado"\n\
+echo "Acesse pelo IP:"\n\
+hostname -I | awk "{print \$1}"\n\
+echo "========================================="\n\
+nginx -g "daemon off;"\n' > /start.sh
+
+RUN chmod +x /start.sh
+
+EXPOSE 80
+
+RUN echo 'echo "Jogo: $(hostname -I)"' >> /root/.bashrc
+
+CMD ["/start.sh"]
+
+
+
+

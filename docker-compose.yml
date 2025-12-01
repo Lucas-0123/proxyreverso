@@ -1,0 +1,24 @@
+services:
+  servidor:
+    build:
+      context: .
+      dockerfile: servidor
+    container_name: servidor
+    
+  servidor2:
+    build:
+      context: .
+      dockerfile: servidor2
+    container_name: servidor2
+    
+  proxy:
+    build:
+      context: .
+      dockerfile: proxy
+    container_name: proxy
+    ports:
+      - "0.0.0.0:80:80"
+    depends_on:
+      - servidor
+      - servidor2
+    

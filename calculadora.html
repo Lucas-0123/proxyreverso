@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Moderna</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: right;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .previous-operation {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1em;
+            min-height: 27px;
+            word-wrap: break-word;
+        }
+
+        .current-operation {
+            color: white;
+            font-size: 2.2em;
+            font-weight: 300;
+            word-wrap: break-word;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.3em;
+            font-weight: 500;
+            padding: 20px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-operation {
+            background: rgba(255, 140, 0, 0.3);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .btn-operation:hover {
+            background: rgba(255, 140, 0, 0.4);
+        }
+
+        .btn-equals {
+            background: rgba(34, 197, 94, 0.3);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-clear {
+            background: rgba(239, 68, 68, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-clear:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .history-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-title {
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .history-item {
+            color: white;
+            font-size: 0.8em;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Scrollbar personalizada */
+        .history-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .history-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        @media (max-width: 400px) {
+            .calculator {
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 15px 0;
+                font-size: 1.1em;
+            }
+            
+            .current-operation {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operation" id="previous-operation"></div>
+            <div class="current-operation" id="current-operation">0</div>
+        </div>
+        
+        <div class="buttons-grid">
+            <button class="btn btn-clear" onclick="clearCalculator()">C</button>
+            <button class="btn btn-clear" onclick="deleteLast()">⌫</button>
+            <button class="btn btn-operation" onclick="appendOperation('/')">/</button>
+            <button class="btn btn-operation" onclick="appendOperation('*')">×</button>
+            
+            <button class="btn" onclick="appendNumber('7')">7</button>
+            <button class="btn" onclick="appendNumber('8')">8</button>
+            <button class="btn" onclick="appendNumber('9')">9</button>
+            <button class="btn btn-operation" onclick="appendOperation('-')">-</button>
+            
+            <button class="btn" onclick="appendNumber('4')">4</button>
+            <button class="btn" onclick="appendNumber('5')">5</button>
+            <button class="btn" onclick="appendNumber('6')">6</button>
+            <button class="btn btn-operation" onclick="appendOperation('+')">+</button>
+            
+            <button class="btn" onclick="appendNumber('1')">1</button>
+            <button class="btn" onclick="appendNumber('2')">2</button>
+            <button class="btn" onclick="appendNumber('3')">3</button>
+            <button class="btn btn-equals" onclick="calculate()" rowspan="2">=</button>
+            
+            <button class="btn btn-zero" onclick="appendNumber('0')">0</button>
+            <button class="btn" onclick="appendNumber('.')">.</button>
+        </div>
+
+        <div class="history-panel">
+            <div class="history-title">Histórico</div>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentOperation = '0';
+        let previousOperation = '';
+        let operation = null;
+        let shouldResetScreen = false;
+        let history = [];
+
+        const currentOperationElement = document.getElementById('current-operation');
+        const previousOperationElement = document.getElementById('previous-operation');
+        const historyElement = document.getElementById('history');
+
+        function appendNumber(number) {
+            if (currentOperation === '0' || shouldResetScreen) {
+                currentOperation = number;
+                shouldResetScreen = false;
+            } else {
+                currentOperation += number;
+            }
+            updateDisplay();
+        }
+
+        function appendOperation(op) {
+            if (operation !== null) calculate();
+            previousOperation = currentOperation;
+            operation = op;
+            shouldResetScreen = true;
+            updateDisplay();
+        }
+
+        function calculate() {
+            let computation;
+            const prev = parseFloat(previousOperation);
+            const current = parseFloat(currentOperation);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            // Adicionar ao histórico
+            const historyItem = `${previousOperation} ${operation} ${currentOperation} = ${computation}`;
+            history.unshift(historyItem);
+            if (history.length > 5) history.pop();
+            updateHistory();
+
+            currentOperation = computation.toString();
+            operation = null;
+            previousOperation = '';
+            shouldResetScreen = true;
+            updateDisplay();
+        }
+
+        function clearCalculator() {
+            currentOperation = '0';
+            previousOperation = '';
+            operation = null;
+            updateDisplay();
+        }
+
+        function deleteLast() {
+            if (currentOperation.length === 1) {
+                currentOperation = '0';
+            } else {
+                currentOperation = currentOperation.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            currentOperationElement.textContent = currentOperation;
+            if (operation != null) {
+                previousOperationElement.textContent = `${previousOperation} ${operation}`;
+            } else {
+                previousOperationElement.textContent = previousOperation;
+            }
+        }
+
+        function updateHistory() {
+            historyElement.innerHTML = '';
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.textContent = item;
+                historyElement.appendChild(div);
+            });
+        }
+
+        // Teclado suporte
+        document.addEventListener('keydown', (event) => {
+            if (/[0-9]/.test(event.key)) {
+                appendNumber(event.key);
+            } else if (event.key === '.') {
+                appendNumber('.');
+            } else if (event.key === '+') {
+                appendOperation('+');
+            } else if (event.key === '-') {
+                appendOperation('-');
+            } else if (event.key === '*') {
+                appendOperation('*');
+            } else if (event.key === '/') {
+                event.preventDefault();
+                appendOperation('/');
+            } else if (event.key === 'Enter' || event.key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (event.key === 'Escape') {
+                clearCalculator();
+            } else if (event.key === 'Backspace') {
+                deleteLast();
+            }
+        });
+
+        // Inicializar display
+        updateDisplay();
+    </script>
+</body>
+</html>
